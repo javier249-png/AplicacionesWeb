@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="sp">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="estilo.css">
+    <title id="color_titulo">club penguin</title>
+</head>
+
+<body>
+    <form name="f1" action="#" method="POST">
+        <table width="80%" border="1">
+            <tr>
+                <td>Elemento</td>
+                <td>Visualización</td>
+            </tr>
+            <tr>
+                <td>Cuadro de texto</td>
+                <td>
+                    <input type="text" name="carrera" size="50" maxlength="10" required placeholder="Escriba su nombre completo">
+                    <!-- maxlength máxomo de caracteres y el size define los caracteres que se verán-->
+                </td>
+            </tr>
+            <tr>
+                <td>Ingreso de clave</td>
+                <td>
+                    <input type="password" name="key" size="20" maxlength="8">
+                </td>
+            </tr>
+            <tr>
+                <td>Cuadro de correo</td>
+                <td>
+                    <input type="email" name="correo" size="20" maxlength="20" placeholder="ej: ejemplo@gmail.com">
+                </td>
+            </tr>
+            <tr>
+                <td>Solo números</td>
+                <td>
+                    <input type="number" name="edad" min="17" max="23">
+                </td>
+            </tr>
+            <tr>
+                <td>Calendario</td>
+                <td>
+                    <input type="date" >
+                </td>
+            </tr>
+            <tr>
+                <td>Campo de selección única</td>
+                <td>
+                    <input type="radio" name="c2" value="Lota">Lota<br>
+                    <input type="radio" name="c2" value="Coronel">Coronel<br>
+                    <input type="radio" name="c2" value="Lota">Colcura<br>
+                </td>
+            </tr>
+            <tr>
+                <td>Campo de selección multiple</td>
+                <td>
+                    <input type="checkbox" name="c1" value="UCH">UCH<br>
+                    <input type="checkbox" name="c1" value="Lota Schwager">Lota Schwager<br>
+                    <input type="checkbox" name="c1" value="Colo-Colo">Colo-Colo<br>
+                </td>
+            </tr>
+            <tr>
+                <td>Campo de selección multiple</td>
+                <td>
+                    <select name="ciudad">
+                        <option value="0">seleccione ciudad</option>
+                        <optgroup label="Prov. Concepción">
+                            <option value="lota">Lota</optio>
+                            <option value="coronel">Coronel</option>
+                            <option value="lara">Laraquete</option>
+                        </optgroup>
+                        <optgroup label="Prov. Bio Bio">
+                            <option value="la">Los Angeles</optio>
+                            <option value="mulchen">Mulchén</option>
+                            <option value="lara">San Carlos</option>
+                        </optgroup>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Cuadro de texto ampleo</td>
+                <td>
+                    <textarea name="mensaje" cols="30" rows="10"></textarea>
+                </td>
+
+            </tr>
+            <tr>
+                <td>Botones de acción</td>
+                <td>
+                    <input type="button" name="bt1" value="Enviar"> No hace nada<br>
+                    <input type="reset" name="bt2" value="Borrar formulario">
+                    <input type="submit" name="bt3" value="Enviar Datos">
+                </td>
+            </tr>
+
+        </table>
+    </form>
+
+</body>
+
+</html>
