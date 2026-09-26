@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($usuario === "admin" && $clave === "1234") {
         
         // Redirige al archivo del formulario
-        header("Location: gmailmenu.php");
+        header("Location: index.php");
         exit(); // Detiene la ejecución del código para procesar el redireccionamiento inmediatamente
 
     } else {
@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio de Sesión</title>
-    <link rel="stylesheet" href="iniciar_sesion.css">
+    <link rel="stylesheet" href="../estilo/iniciar_sesion.css">
 </head>
 <body>
 
