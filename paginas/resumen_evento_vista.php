@@ -48,7 +48,7 @@
                 <span class="menu-title">INVITACIONES</span>
                 <ul>
                     <li>
-                        <a href="configurar_invitaciones.php"><i class="fa-solid fa-envelope-open-text"></i> Configurar</a>
+                        <a href="gestionar_invitaciones.php"><i class="fa-solid fa-envelope-open-text"></i> Asignar Invitaciones</a>
                     </li>
                     <li>
                         <a href="gmailmenu.php"><i class="fa-solid fa-paper-plane"></i> Enviar</a>

@@ -7,24 +7,25 @@ $tipo_alerta = "";
 try {
     $pdo = obtenerConexion();
 
-    // 1. Cargar las listas iniciales
-    $regiones      = $pdo->query("SELECT * FROM region ORDER BY nombre_region ASC")->fetchAll(PDO::FETCH_ASSOC);
-    $tipos_evento  = $pdo->query("SELECT * FROM tipo_evento ORDER BY nombre_tipo ASC")->fetchAll(PDO::FETCH_ASSOC);
-    $organizadores = $pdo->query("SELECT * FROM organizador ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
+    // 1. Cargar las listas iniciales desde la BD
+    $regiones        = $pdo->query("SELECT * FROM region ORDER BY nombre_region ASC")->fetchAll(PDO::FETCH_ASSOC);
+    $tipos_evento    = $pdo->query("SELECT * FROM tipo_evento ORDER BY nombre_tipo ASC")->fetchAll(PDO::FETCH_ASSOC);
+    $organizadores   = $pdo->query("SELECT * FROM organizador ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
+    $tipos_invitados = $pdo->query("SELECT * FROM tipo_invitado ORDER BY id_tipo_invitado ASC")->fetchAll(PDO::FETCH_ASSOC);
 
-    // 2. Procesar el formulario cuando se envía por POST
+    // 2. Procesar el formulario POST
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        $titulo          = isset($_POST['nombre']) ? htmlspecialchars(trim($_POST['nombre'])) : '';
-        $fecha           = isset($_POST['fecha']) ? htmlspecialchars(trim($_POST['fecha'])) : '';
-        $hora_simple     = isset($_POST['hora']) ? htmlspecialchars(trim($_POST['hora'])) : '';
-        $descripcion     = isset($_POST['descripcion']) ? htmlspecialchars(trim($_POST['descripcion'])) : '';
-        $cant_invitados  = isset($_POST['cant_invitados']) && (int)$_POST['cant_invitados'] > 0 ? (int)$_POST['cant_invitados'] : 50;
+        $titulo             = isset($_POST['nombre']) ? htmlspecialchars(trim($_POST['nombre'])) : '';
+        $fecha              = isset($_POST['fecha']) ? htmlspecialchars(trim($_POST['fecha'])) : '';
+        $hora_simple        = isset($_POST['hora']) ? htmlspecialchars(trim($_POST['hora'])) : '';
+        $descripcion        = isset($_POST['descripcion']) ? htmlspecialchars(trim($_POST['descripcion'])) : '';
+        $cant_invitados     = isset($_POST['cant_invitados']) && (int)$_POST['cant_invitados'] > 0 ? (int)$_POST['cant_invitados'] : 50;
 
-        $id_region       = (int)($_POST['id_region'] ?? 0);
-        $id_comuna       = (int)($_POST['id_comuna'] ?? 0);
-        $id_recinto      = (int)($_POST['id_recinto'] ?? 0);
-        $id_tipo_evento  = (int)($_POST['id_tipo_evento'] ?? 1);
-        $id_organizador  = (int)($_POST['id_organizador'] ?? 1);
+        $id_region          = (int)($_POST['id_region'] ?? 0);
+        $id_comuna          = (int)($_POST['id_comuna'] ?? 0);
+        $id_recinto         = (int)($_POST['id_recinto'] ?? 0);
+        $id_tipo_evento     = (int)($_POST['id_tipo_evento'] ?? 1);
+        $id_organizador     = (int)($_POST['id_organizador'] ?? 1);
 
         if (!empty($titulo) && !empty($fecha) && !empty($hora_simple) && !empty($id_recinto) && !empty($id_comuna) && !empty($id_region)) {
             
@@ -61,7 +62,7 @@ try {
                 $tipo_alerta = "alert-success";
             }
         } else {
-            $mensaje = "Por favor, completa la región, comuna y recinto correspondientes.";
+            $mensaje = "Por favor, completa todos los campos requeridos.";
             $tipo_alerta = "alert-error";
         }
     }
@@ -95,6 +96,15 @@ try {
                     <li class="active"><a href="crear_evento.php"><i class="fa-solid fa-calendar-plus"></i> Crear Evento</a></li>
                     <li><a href="resumen_evento.php"><i class="fa-solid fa-chart-pie"></i> Resumen Evento</a></li>
                     <li><a href="editar_evento.php"><i class="fa-solid fa-pen-to-square"></i> Editar Evento</a></li>
+                </ul>
+            </div>
+
+            <div class="menu-section">
+                <span class="menu-title">INVITACIONES</span>
+                <ul>
+                    <li><a href="gestionar_invitaciones.php"><i class="fa-solid fa-envelope-open-text"></i> Asignar Invitaciones</a></li>
+                    <li><a href="gmailmenu.php"><i class="fa-solid fa-paper-plane"></i> Enviar</a></li>
+                    <li><a href="iniciar_sesion.php"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a></li>
                 </ul>
             </div>
         </aside>
@@ -136,15 +146,63 @@ try {
                         </div>
 
                         <div class="form-group">
-                            <label for="cant_invitados">Cantidad de Invitados *</label>
+                            <label for="cant_invitados">Cupo Máximo Total *</label>
                             <input type="number" id="cant_invitados" name="cant_invitados" min="1" max="1000" placeholder="Ej: 50" required>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN: MULTI-SELECCIÓN DE PERFILES Y SUS MENÚS INDEPENDIENTES -->
+                    <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #cbd5e1;">
+                        <label style="font-weight: bold; color: #0f172a; margin-bottom: 10px; display: block;">
+                            <i class="fa-solid fa-user-tag" style="color: #0284c7;"></i> Marca los perfiles de invitados permitidos para este evento:
+                        </label>
+                        
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 15px;">
+                            <label style="cursor: pointer; font-weight: 500;">
+                                <input type="checkbox" id="chk_estudiante" name="perfiles[]" value="estudiante" onclick="toggleMenuAcompanante('estudiante')"> Estudiante
+                            </label>
+                            <label style="cursor: pointer; font-weight: 500;">
+                                <input type="checkbox" id="chk_autoridad" name="perfiles[]" value="autoridad" onclick="toggleMenuAcompanante('autoridad')"> Autoridad
+                            </label>
+                            <label style="cursor: pointer; font-weight: 500;">
+                                <input type="checkbox" id="chk_profesor" name="perfiles[]" value="profesor" onclick="toggleMenuAcompanante('profesor')"> Profesor
+                            </label>
+                        </div>
+
+                        <!-- CONTENEDORES DE MENÚS INDEPENDIENTES DE ACOMPAÑANTES -->
+                        <div id="panel_menus_acompanantes">
+                            
+                            <!-- Menú Estudiante -->
+                            <div id="menu_acomp_estudiante" class="form-group" style="display: none; background-color: #ffffff; padding: 10px 15px; border-radius: 6px; border-left: 4px solid #0284c7; margin-bottom: 10px;">
+                                <label for="acomp_estudiante" style="font-weight: bold; color: #1e293b;">
+                                    <i class="fa-solid fa-user-plus" style="color: #0284c7;"></i> Acompañantes permitidos por cada <strong>Estudiante</strong>:
+                                </label>
+                                <input type="number" id="acomp_estudiante" name="acomp_estudiante" min="0" max="10" value="0" style="margin-top: 5px;">
+                            </div>
+
+                            <!-- Menú Autoridad -->
+                            <div id="menu_acomp_autoridad" class="form-group" style="display: none; background-color: #ffffff; padding: 10px 15px; border-radius: 6px; border-left: 4px solid #10b981; margin-bottom: 10px;">
+                                <label for="acomp_autoridad" style="font-weight: bold; color: #1e293b;">
+                                    <i class="fa-solid fa-user-plus" style="color: #10b981;"></i> Acompañantes permitidos por cada <strong>Autoridad</strong>:
+                                </label>
+                                <input type="number" id="acomp_autoridad" name="acomp_autoridad" min="0" max="10" value="1" style="margin-top: 5px;">
+                            </div>
+
+                            <!-- Menú Profesor -->
+                            <div id="menu_acomp_profesor" class="form-group" style="display: none; background-color: #ffffff; padding: 10px 15px; border-radius: 6px; border-left: 4px solid #f59e0b; margin-bottom: 10px;">
+                                <label for="acomp_profesor" style="font-weight: bold; color: #1e293b;">
+                                    <i class="fa-solid fa-user-plus" style="color: #f59e0b;"></i> Acompañantes permitidos por cada <strong>Profesor</strong>:
+                                </label>
+                                <input type="number" id="acomp_profesor" name="acomp_profesor" min="0" max="10" value="1" style="margin-top: 5px;">
+                            </div>
+
                         </div>
                     </div>
 
                     <!-- PASO 1: REGIÓN -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="id_region">Seleccionar Región *</label>
+                            <label for="id_region">1. Seleccionar Región *</label>
                             <select id="id_region" name="id_region" required onchange="cargarComunas(this.value)">
                                 <option value="">-- Selecciona Región --</option>
                                 <?php foreach ($regiones as $reg): ?>
@@ -157,7 +215,7 @@ try {
 
                         <!-- PASO 2: COMUNA -->
                         <div class="form-group">
-                            <label for="id_comuna">Seleccionar Comuna *</label>
+                            <label for="id_comuna">2. Seleccionar Comuna *</label>
                             <select id="id_comuna" name="id_comuna" disabled required onchange="cargarRecintos(this.value)">
                                 <option value="">-- Selecciona Región Primero --</option>
                             </select>
@@ -166,7 +224,7 @@ try {
 
                     <!-- PASO 3: RECINTO -->
                     <div class="form-group">
-                        <label for="id_recinto">Seleccionar Recinto / Lugar *</label>
+                        <label for="id_recinto">3. Seleccionar Recinto / Lugar *</label>
                         <select id="id_recinto" name="id_recinto" disabled required>
                             <option value="">-- Selecciona Comuna Primero --</option>
                         </select>
@@ -211,8 +269,19 @@ try {
 
     </div>
 
-    <!-- JavaScript para comunicación en la misma carpeta paginas/ -->
+    <!-- JavaScript para conmutar menús según la multi-selección -->
     <script>
+    function toggleMenuAcompanante(perfil) {
+        const chk = document.getElementById(`chk_${perfil}`);
+        const menu = document.getElementById(`menu_acomp_${perfil}`);
+
+        if (chk.checked) {
+            menu.style.display = 'block';
+        } else {
+            menu.style.display = 'none';
+        }
+    }
+
     function cargarComunas(idRegion) {
         const comboComuna = document.getElementById('id_comuna');
         const comboRecinto = document.getElementById('id_recinto');
@@ -238,7 +307,6 @@ try {
                 comboComuna.disabled = false;
             })
             .catch(err => {
-                console.error("Error al cargar comunas:", err);
                 comboComuna.innerHTML = '<option value="">Error al cargar comunas</option>';
             });
     }
@@ -268,7 +336,6 @@ try {
                 comboRecinto.disabled = false;
             })
             .catch(err => {
-                console.error("Error al cargar recintos:", err);
                 comboRecinto.innerHTML = '<option value="">Error al cargar recintos</option>';
             });
     }
