@@ -9,7 +9,7 @@ function obtenerConexion() {
     $host = 'localhost';
     $db = 'bdeventos';
     $user = 'root';
-    $password = '123456'; // Coloca la clave de MySQL en caso de tener una asignada
+    $password = '123456'; 
     $charset = 'utf8mb4';
 
     $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
