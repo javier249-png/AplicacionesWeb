@@ -5,8 +5,13 @@ $eventos = [];
 
 try {
     $pdo = obtenerConexion();
-    // Consultar todos los eventos registrados en la base de datos
-    $sql = "SELECT * FROM evento ORDER BY fecha_evento ASC, hora ASC";
+    
+    // Consultar eventos uniendo con la tabla recinto para mostrar el lugar real
+    $sql = "SELECT e.*, r.nombre_recinto 
+            FROM evento e 
+            LEFT JOIN recinto r ON e.id_recinto = r.id_recinto 
+            ORDER BY e.fecha_evento ASC, e.hora ASC";
+            
     $stmt = $pdo->query($sql);
     $eventos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -83,6 +88,13 @@ try {
                 <p>Información detallada de los próximos eventos y actividades en CFTLA.</p>
             </div>
 
+            <!-- Alerta de estado tras eliminar -->
+            <?php if (isset($_GET['mensaje']) && $_GET['mensaje'] === 'eliminado'): ?>
+                <div class="alert alert-success" style="padding: 12px; margin-bottom: 15px; background-color: #d4edda; color: #155724; border-radius: 6px; font-weight: bold;">
+                    ¡El evento fue eliminado correctamente de MariaDB!
+                </div>
+            <?php endif; ?>
+
             <!-- Mostrar mensaje de error si ocurriera alguno -->
             <?php if (isset($error)): ?>
                 <div class="alert alert-error" style="padding: 12px; margin-bottom: 15px; background-color: #f8d7da; color: #721c24; border-radius: 6px;">
@@ -90,7 +102,7 @@ try {
                 </div>
             <?php endif; ?>
 
-            <!-- Grid de Tarjetas de Eventos Generadas dinámicamente -->
+            <!-- Grid de Tarjetas de Eventos -->
             <div class="cards-grid" style="display: flex; flex-wrap: wrap; gap: 20px;">
                 
                 <?php if (!empty($eventos)): ?>
@@ -98,6 +110,7 @@ try {
                         <?php 
                             // Formatear hora
                             $hora_formateada = date('h:i A', strtotime($evt['hora']));
+                            $lugar_nombre = !empty($evt['nombre_recinto']) ? $evt['nombre_recinto'] : 'CFTLA Central';
                         ?>
                         <div class="card card-blue" style="flex: 1; min-width: 280px; max-width: 350px;">
                             <div class="card-header">
@@ -107,16 +120,30 @@ try {
                             <div class="card-body">
                                 <p><i class="fa-solid fa-clock"></i> <strong>Hora:</strong> <?php echo $hora_formateada; ?></p>
                                 <p><i class="fa-solid fa-calendar"></i> <strong>Fecha:</strong> <?php echo $evt['fecha_evento']; ?></p>
-                                <p><i class="fa-solid fa-location-dot"></i> <strong>Lugar:</strong> Auditorio Central, CFTLA</p>
+                                <p><i class="fa-solid fa-location-dot"></i> <strong>Lugar:</strong> <?php echo htmlspecialchars($lugar_nombre); ?></p>
+                                <p><i class="fa-solid fa-users"></i> <strong>Invitados:</strong> <?php echo $evt['cant_invitados']; ?></p>
+                                
                                 <hr style="margin: 10px 0; border: 0; border-top: 1px dashed #ccc;">
                                 <p style="font-size: 0.9em; color: #555;">
                                     Estado: <span style="font-weight: bold; color: green;"><?php echo ucfirst($evt['estado']); ?></span>
                                 </p>
                                 
-                                <!-- Botón directo para editar este evento específico -->
-                                <a href="editar_evento.php?id=<?php echo $evt['id_evento']; ?>" style="display: inline-block; margin-top: 10px; padding: 6px 12px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 0.85em;">
-                                    <i class="fa-solid fa-pen-to-square"></i> Editar este evento
-                                </a>
+                                <!-- Botones de Acción: Editar y Eliminar -->
+                                <div class="card-actions" style="display: flex; gap: 10px; margin-top: 12px;">
+                                    <!-- Botón Editar -->
+                                    <a href="editar_evento.php?id=<?php echo $evt['id_evento']; ?>" 
+                                       style="flex: 1; text-align: center; padding: 6px 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 0.85em;">
+                                        <i class="fa-solid fa-pen-to-square"></i> Editar
+                                    </a>
+
+                                    <!-- Botón Eliminar con alerta confirmación -->
+                                    <a href="eliminar_evento.php?id=<?php echo $evt['id_evento']; ?>" 
+                                       style="flex: 1; text-align: center; padding: 6px 10px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 4px; font-size: 0.85em;"
+                                       onclick="return confirm('¿Estás seguro de que deseas eliminar este evento?');">
+                                        <i class="fa-solid fa-trash"></i> Eliminar
+                                    </a>
+                                </div>
+
                             </div>
                         </div>
                     <?php endforeach; ?>
