@@ -1,21 +1,28 @@
 <?php
-$mensaje = "";
+require_once __DIR__ . '/auth.php';
+iniciarSesionSegura();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
-    $usuario = $_POST['usuario'];
-    $clave = $_POST['clave'];
+if (!empty($_SESSION['usuario'])) {
+    header('Location: index.php');
+    exit;
+}
 
-    // Validación de credenciales
-    if ($usuario === "admin" && $clave === "1234") {
-        
-        // Redirige al archivo del formulario
-        header("Location: index.php");
-        exit(); // Detiene la ejecución del código para procesar el redireccionamiento inmediatamente
+$mensaje = '';
 
-    } else {
-        $mensaje = "<p class='mensaje-error' style='color: red;'>Usuario o contraseña incorrectos.</p>";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $usuario = trim($_POST['usuario'] ?? '');
+    $clave = $_POST['clave'] ?? '';
+    $usuarioValido = getenv('APP_LOGIN_USER') ?: 'admin';
+    $claveValida = getenv('APP_LOGIN_PASSWORD') ?: '1234';
+
+    if (hash_equals($usuarioValido, $usuario) && hash_equals($claveValida, $clave)) {
+        session_regenerate_id(true);
+        $_SESSION['usuario'] = $usuario;
+        header('Location: index.php');
+        exit;
     }
+
+    $mensaje = 'Usuario o contraseña incorrectos.';
 }
 ?>
 <!DOCTYPE html>
@@ -35,15 +42,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <h2>Inicio de Sesión</h2>
 
-        <?php echo $mensaje; ?>
+        <?php if ($mensaje !== ''): ?>
+            <p class="mensaje-error" style="color: red;"><?php echo htmlspecialchars($mensaje, ENT_QUOTES, 'UTF-8'); ?></p>
+        <?php endif; ?>
 
         <form action="" method="POST">
             <div class="iniciar_usuario">
-                <input type="text" name="usuario" placeholder="Usuario / Login" required>
+                <input type="text" name="usuario" placeholder="Usuario / Login" autocomplete="username" required>
             </div>
             
             <div class="Contraseña">
-                <input type="password" name="clave" placeholder="Contraseña" required>
+                <input type="password" name="clave" placeholder="Contraseña" autocomplete="current-password" required>
             </div>
 
             <button type="submit">Entrar</button>

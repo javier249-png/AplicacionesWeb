@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/auth.php';
+requireLogin();
 require_once 'conexion.php';
 
 $mensaje = "";
@@ -104,7 +106,7 @@ try {
                 <ul>
                     <li><a href="gestionar_invitaciones.php"><i class="fa-solid fa-envelope-open-text"></i> Asignar Invitaciones</a></li>
                     <li><a href="gmailmenu.php"><i class="fa-solid fa-paper-plane"></i> Enviar</a></li>
-                    <li><a href="iniciar_sesion.php"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a></li>
+                    <li><a href="cerrar_sesion.php"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a></li>
                 </ul>
             </div>
         </aside>

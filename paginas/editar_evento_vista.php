@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/auth.php';
+requireLogin();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -54,7 +58,7 @@
                         <a href="gmailmenu.php"><i class="fa-solid fa-paper-plane"></i> Enviar</a>
                     </li>
                     <li>
-                        <a href="iniciar_sesion.php"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a>
+                        <a href="cerrar_sesion.php"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a>
                     </li>
                 </ul>
             </div>
